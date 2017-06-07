@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="./js/jquery-3.1.1.slim.min.js"></script>
+	<script type="text/javascript" src="./js/underscore-min.js"></script>
+	<script src="./js/hamsters.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/spectre.min.css">
+	<title>Pi Calculator</title>
+</head>
+<body class="text-center">
+<h1 class="title">'Pi' con parallelizzazione (Hamster)</h1>
+<div class="res label">Calcolo in corso...</div>
+<pre><code>Numero di iterazioni: ...<br/>Numero di task: ...</code></pre>
+
+<script type="text/javascript">
+	// Parametri iniziali: hamsters.maxThreads dipende dal computer in uso.
+	var params = {
+		'iterations': 1000000000,
+		'ntask': hamsters.maxThreads
+	};
+
+	$('code').html('Numero di iterazioni: '+params.iterations+'<br/>Numero di task: '+params.ntask+'<br/>');
+	// Controllo di partenza del tempo di esecuione
+	var start = new Date().getTime();
+
+	// Metodo "run" per eseguire il codice parallelo
+	hamsters.run(params, function() {
+		// Suddivido il carico di lavoro
+	    var taskIterations = params.iterations/params.ntask;
+	    var circleCount=0;
+	    // Effettuo un numero di lanci per vedere se il punto cade
+	    // all'interno del cerchio
+		for (var i = taskIterations; i >= 0; i--) {
+			circleCount += (Math.sqrt(Math.pow(Math.random(),2)+Math.pow(Math.random(),2))<=1) ? 1 : 0
+		}
+		// Conservo il risultato
+	    rtn.data.push(circleCount/taskIterations);
+	    
+	}, function(output) {
+		// Sommo tutti i risultati
+		var count=0;
+		for (var i=output.length; i--;) {
+	    	count+=output[i];
+	    }
+	    // Effettuo la media e moltiplico per 4
+		var pi=(count/output.length)*4;
+		// Tempo di esecuzione terminato
+		var end = new Date().getTime();
+		var time = (end - start)/1000;
+		// Output sulla pagina
+		console.log(pi);
+		$('.res').html(pi);
+		$('code').html($('code').html()+'<br/><br/>Tempo di esecuzione: '+time+' secondi.');
+		console.log('Time: '+(time)+' seconds');
+	    return output;
+	}, hamsters.maxThreads, true);
+</script>
+</body>
+</html>

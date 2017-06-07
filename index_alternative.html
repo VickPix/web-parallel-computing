@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="./js/jquery-3.1.1.slim.min.js"></script>
+	<script type="text/javascript" src="./js/underscore-min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/spectre.min.css">
+	<script type="text/javascript" src="./js/parallel.js"></script>
+	<title>Pi Calculator</title>
+</head>
+<body class="text-center">
+<h1 class="title">'Pi' con parallelizzazione (Parallel)</h1>
+<div class="res label">Calcolo in corso...</div>
+<pre><code></code></pre>
+
+<script type="text/javascript">
+	// Inizializzazione 
+	var ntask=8, iterations=1000000000;
+	$('code').html('Numero di iterazioni: '+iterations+'<br/>Numero di task: '+ntask+'<br/>');
+	// Inizio tempo di esecuzione
+	var start = new Date().getTime();
+	// Inizializzazione della parallelizzazione
+	let p = new Parallel(_.range(ntask), {
+	  env: {
+	    i: iterations,
+	    n: ntask
+	  }
+	});
+	// Funzione di reduce (somma)
+	function sum(d) { return d[0] + d[1]; }
+	// Funzione di media e moltiplicazione finale
+	function product(n) { return (n/iterations)*4; }
+	// Funzione di stampa del risultato Pi
+	function log() { 
+		$('.res').html(arguments[0]);
+		console.log(arguments); 
+	}
+	// Funzione di stampa del tempo di esecuzione
+	function logTime(){
+		var end = new Date().getTime();
+		var time = (end - start)/1000;
+		console.log('Time: '+(time)+' seconds');
+		$('code').html($('code').html()+'<br/><br/>Tempo di esecuzione: '+time+' secondi.');
+	}
+	// Funzione dei lanci random (coordinate x e y casuali)
+	function random(m) { 
+		var tasksum=0,taskIterations=global.env.i/global.env.n;
+		for (var i = taskIterations; i >= 0; i--) {
+			tasksum += (Math.sqrt(Math.pow(Math.random(),2)+Math.pow(Math.random(),2))<=1) ? 1 : 0
+		}
+		return tasksum;
+	}
+	// Comando che effettua tutte operazioni sopra citate:
+	// Random -> Somma -> Media -> StampaRisultato -> StampaTempo
+	p.map(random).reduce(sum).then(product).then(log).then(logTime);
+</script>
+</body>
+</html>

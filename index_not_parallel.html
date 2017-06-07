@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="./js/jquery-3.1.1.slim.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/spectre.min.css">
+	<title></title>
+</head>
+<body class="text-center">
+<h1 class="title">'Pi' senza parallelizzazione</h1>
+<div class="res label">Calcolo in corso...</div>
+<pre><code></code></pre>
+<script type="text/javascript">
+	var ntask=8, iterations=1000000000; //un miliardo
+	// Funzione da eseguire
+	function random() { 
+		var tasksum=0;
+		for (var i = iterations; i >= 0; i--) {
+			tasksum += (Math.sqrt(Math.pow(Math.random(),2)+Math.pow(Math.random(),2))<=1) ? 1 : 0
+		}
+		return (tasksum/iterations)*4;
+	}
+	// Tempo iniziale
+	var start = new Date().getTime();
+	// Avvio il calcolo
+	var pi=random();
+	// Fine calcolo
+	var end = new Date().getTime();
+	var time = (end - start)/1000;
+	// Output
+	console.log(pi);
+	$('.res').html(pi);
+	$('code').html('Numero di iterazioni: '+iterations+'<br/>Tempo di esecuzione: '+time+' secondi.');
+</script>
+</body>
+</html>
